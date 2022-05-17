@@ -28,6 +28,8 @@ await Promise.all(
 
 			for (const packageJsonFileName of packageJsonFiles) {
 				const packageJsonFile = path.join(projectDir, packageJsonFileName);
+				if (packageJsonFile.includes('node_modules')) continue;
+
 				console.log(`Processing package.json file ${packageJsonFile}`);
 
 				const pkgJson = JSON.parse(
