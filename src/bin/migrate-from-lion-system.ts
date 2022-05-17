@@ -80,7 +80,11 @@ await Promise.all(
 					stdio: 'inherit',
 				}
 			);
-			await execa('git', ['push', '--no-verify']);
+			await execa('git', ['push', '--no-verify'], {
+				stdio: 'inherit',
+				cwd,
+				reject: false,
+			});
 		} catch (error: unknown) {
 			console.error(error);
 		}
