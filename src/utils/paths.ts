@@ -1,0 +1,1 @@
+export const projectsDir = '/Users/leonzalion/projects';
