@@ -7,48 +7,46 @@ import * as path from 'node:path';
 const projectsDir = join(import.meta.url, '../../..');
 process.chdir(projectsDir);
 
-console.log('Finding all package.json files...');
-const gitRepos = globbySync('**/.git', {
-	gitignore: true,
-	ignoreFiles: ['**/node_modules', '**/.pnpm'],
-});
-fs.writeFileSync(join(import.meta.url, 'repos.json'), JSON.stringify(gitRepos));
+const projects = fs.readdirSync(projectsDir);
 
 await Promise.all(
-	gitRepos
-		.filter((gitRepo) => !gitRepo.includes('node_modules'))
-		.map(async (gitRepo) => {
-			const projectDir = path.join(gitRepo)
+	projects.map(async (project) => {
+		try {
+			const projectDir = path.join(projectsDir, project);
+			if (!fs.statSync(projectDir).isDirectory()) {
+				return;
+			}
+
 			await execa('git', ['reset', '--hard'], {
 				cwd: projectDir,
 				reject: false,
 			});
 
-			const packageJsonFiles = globbySync('**/package.json', { cwd: projectDir });
+			const packageJsonFiles = globbySync('**/package.json', {
+				cwd: projectDir,
+			});
 			for (const packageJsonFile of packageJsonFiles) {
-				try {
-					console.log(`Processing package.json file ${packageJsonFile}`);
+				console.log(`Processing package.json file ${packageJsonFile}`);
 
-					const pkgJson = JSON.parse(
-						await fs.promises.readFile(packageJsonFile, 'utf8')
-					);
+				const pkgJson = JSON.parse(
+					await fs.promises.readFile(packageJsonFile, 'utf8')
+				);
 
-					if (pkgJson.dependencies?.['lion-system'] !== undefined) {
-						delete pkgJson.dependencies['lion-system'];
-					}
+				if (pkgJson.dependencies?.['lion-system'] !== undefined) {
+					delete pkgJson.dependencies['lion-system'];
+				}
 
-					if (pkgJson.devDependencies?.['lion-system'] !== undefined) {
-						delete pkgJson.devDependencies['lion-system'];
-					}
+				if (pkgJson.devDependencies?.['lion-system'] !== undefined) {
+					delete pkgJson.devDependencies['lion-system'];
+				}
 
-					await fs.promises.writeFile(
-						packageJsonFile,
-						JSON.stringify(pkgJson, null, '\t')
-					);
-				} catch {}
+				await fs.promises.writeFile(
+					packageJsonFile,
+					JSON.stringify(pkgJson, null, '\t')
+				);
 			}
 
-			const cwd = projectDir
+			const cwd = projectDir;
 
 			await execaCommand(
 				"rg lion-system --files-with-matches | xargs sed -i '' 's/lion-system/lionconfig/g'",
@@ -81,5 +79,8 @@ await Promise.all(
 				}
 			);
 			await execa('git', ['push', '--no-verify']);
-		})
+		} catch (error: unknown) {
+			console.error(error);
+		}
+	})
 );
