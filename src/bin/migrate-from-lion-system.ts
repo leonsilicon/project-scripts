@@ -58,19 +58,18 @@ await Promise.all(
 				stdio: 'inherit',
 			});
 			if (fs.existsSync(path.join(cwd, 'pnpm-workspace.yaml'))) {
-			await execa('pnpm', ['add', '-D', '-w', 'lionconfig'], {
-				reject: false,
-				cwd,
-				stdio: 'inherit',
-			});
-		} else {
-
-			await execa('pnpm', ['add', '-D', 'lionconfig'], {
-				reject: false,
-				cwd,
-				stdio: 'inherit',
-			});
-		}
+				await execa('pnpm', ['add', '-D', '-w', 'lionconfig'], {
+					reject: false,
+					cwd,
+					stdio: 'inherit',
+				});
+			} else {
+				await execa('pnpm', ['add', '-D', 'lionconfig'], {
+					reject: false,
+					cwd,
+					stdio: 'inherit',
+				});
+			}
 
 			await execa('git', ['add', '.'], {
 				reject: false,
@@ -79,7 +78,7 @@ await Promise.all(
 			});
 			await execa(
 				'git',
-				['commit', '-m', 'refactor: remove lion-system', '--no-verify'],
+				['commit', '-m', 'refactor: add lionconfig', '--no-verify'],
 				{
 					reject: false,
 					cwd,
