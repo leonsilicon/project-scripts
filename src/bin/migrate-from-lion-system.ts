@@ -17,40 +17,7 @@ await Promise.all(
 				return;
 			}
 
-			const packageJsonFiles = globbySync('**/package.json', {
-				cwd: projectDir,
-			});
-
-			for (const packageJsonFileName of packageJsonFiles) {
-				const packageJsonFile = path.join(projectDir, packageJsonFileName);
-				if (packageJsonFile.includes('node_modules')) continue;
-
-				console.log(`Processing package.json file ${packageJsonFile}`);
-
-				const pkgJson = JSON.parse(
-					await fs.promises.readFile(packageJsonFile, 'utf8')
-				);
-
-				if (pkgJson.dependencies?.['lion-system'] !== undefined) {
-					delete pkgJson.dependencies['lion-system'];
-				}
-
-				if (pkgJson.devDependencies?.['lion-system'] !== undefined) {
-					delete pkgJson.devDependencies['lion-system'];
-				}
-
-				await fs.promises.writeFile(
-					packageJsonFile,
-					JSON.stringify(pkgJson, null, '\t')
-				);
-			}
-
 			const cwd = projectDir;
-
-			await execaCommand(
-				"rg lion-system --files-with-matches | xargs sed -i '' 's/lion-system/lionconfig/g'",
-				{ cwd, shell: true, reject: false, stdio: 'inherit' }
-			);
 
 			await execa('pnpm', ['install'], {
 				reject: false,
