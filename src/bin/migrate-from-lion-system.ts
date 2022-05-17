@@ -17,11 +17,6 @@ await Promise.all(
 				return;
 			}
 
-			await execa('git', ['reset', '--hard'], {
-				cwd: projectDir,
-				reject: false,
-			});
-
 			const packageJsonFiles = globbySync('**/package.json', {
 				cwd: projectDir,
 			});
@@ -36,12 +31,12 @@ await Promise.all(
 					await fs.promises.readFile(packageJsonFile, 'utf8')
 				);
 
-				if (pkgJson.dependencies?.['lionconfig'] !== undefined) {
-					delete pkgJson.dependencies['lionconfig'];
+				if (pkgJson.dependencies?.['lion-system'] !== undefined) {
+					delete pkgJson.dependencies['lion-system'];
 				}
 
-				if (pkgJson.devDependencies?.['lionconfig'] !== undefined) {
-					delete pkgJson.devDependencies['lionconfig'];
+				if (pkgJson.devDependencies?.['lion-system'] !== undefined) {
+					delete pkgJson.devDependencies['lion-system'];
 				}
 
 				await fs.promises.writeFile(
@@ -53,7 +48,7 @@ await Promise.all(
 			const cwd = projectDir;
 
 			await execaCommand(
-				"rg lionconfig --files-with-matches | xargs sed -i '' 's/lionconfig/lionconfig/g'",
+				"rg lion-system --files-with-matches | xargs sed -i '' 's/lion-system/lionconfig/g'",
 				{ cwd, shell: true, reject: false, stdio: 'inherit' }
 			);
 
@@ -62,11 +57,20 @@ await Promise.all(
 				cwd,
 				stdio: 'inherit',
 			});
-			await execa('pnpm', ['up', 'lionconfig'], {
+			if (fs.existsSync(path.join(cwd, 'pnpm-workspace.yaml'))) {
+			await execa('pnpm', ['add', '-D', '-w', 'lionconfig'], {
 				reject: false,
 				cwd,
 				stdio: 'inherit',
 			});
+		} else {
+
+			await execa('pnpm', ['add', '-D', 'lionconfig'], {
+				reject: false,
+				cwd,
+				stdio: 'inherit',
+			});
+		}
 
 			await execa('git', ['add', '.'], {
 				reject: false,
@@ -75,7 +79,7 @@ await Promise.all(
 			});
 			await execa(
 				'git',
-				['commit', '-m', 'refactor: remove lionconfig', '--no-verify'],
+				['commit', '-m', 'refactor: remove lion-system', '--no-verify'],
 				{
 					reject: false,
 					cwd,
