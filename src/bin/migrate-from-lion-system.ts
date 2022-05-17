@@ -25,7 +25,9 @@ await Promise.all(
 			const packageJsonFiles = globbySync('**/package.json', {
 				cwd: projectDir,
 			});
-			for (const packageJsonFile of packageJsonFiles) {
+
+			for (const packageJsonFileName of packageJsonFiles) {
+				const packageJsonFile = path.join(projectDir, packageJsonFileName);
 				console.log(`Processing package.json file ${packageJsonFile}`);
 
 				const pkgJson = JSON.parse(
