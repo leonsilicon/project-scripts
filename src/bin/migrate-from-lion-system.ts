@@ -63,8 +63,18 @@ await Promise.all(
 					cwd,
 					stdio: 'inherit',
 				});
+				await execa('pnpm', ['up', '-w', 'lionconfig'], {
+					reject: false,
+					cwd,
+					stdio: 'inherit',
+				});
 			} else {
 				await execa('pnpm', ['add', '-D', 'lionconfig'], {
+					reject: false,
+					cwd,
+					stdio: 'inherit',
+				});
+				await execa('pnpm', ['up', '-D', 'lionconfig'], {
 					reject: false,
 					cwd,
 					stdio: 'inherit',
