@@ -18,12 +18,13 @@ await Promise.all(
 	gitRepos
 		.filter((gitRepo) => !gitRepo.includes('node_modules'))
 		.map(async (gitRepo) => {
+			const projectDir = path.join(gitRepo)
 			await execa('git', ['reset', '--hard'], {
-				cwd: path.dirname(gitRepo),
+				cwd: projectDir,
 				reject: false,
 			});
 
-			const packageJsonFiles = globbySync('**/package.json', { cwd: gitRepo });
+			const packageJsonFiles = globbySync('**/package.json', { cwd: projectDir });
 			for (const packageJsonFile of packageJsonFiles) {
 				try {
 					console.log(`Processing package.json file ${packageJsonFile}`);
@@ -47,7 +48,7 @@ await Promise.all(
 				} catch {}
 			}
 
-			const cwd = path.dirname(gitRepo);
+			const cwd = projectDir
 
 			await execaCommand(
 				"rg lion-system --files-with-matches | xargs sed -i '' 's/lion-system/lionconfig/g'",
